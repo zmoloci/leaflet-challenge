@@ -1,60 +1,90 @@
 // Store our API endpoint as queryUrl.
 let queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
+
+// Create the base layers.
+let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+})
+
+let topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+  attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+});
+
+// Create a baseMaps object.
+let baseMaps = {
+  "Street Map": street,
+  "Topographic Map": topo
+};
+
+
+// Create our map, giving it the streetmap and earthquakes layers to display on load.
+let myMap = L.map("map", {
+  center: [
+    10.09, -70.71
+  ],
+  zoom: 5,
+  layers: [street, topo]
+});
+
+
 // Perform a GET request to the query URL/
 d3.json(queryUrl).then(function (data) {
   // Once we get a response, send the data.features object to the createFeatures function.
-console.log(data)
+  console.log(data)
+  console.log(data.features[0])
 
 
     // Looping through the cities array, create one marker for each city, bind a popup containing its name and population, and add it to the map.
-for (let i = 0; i < data.features.length; i++) {
+  for (let i = 0; i < data.features.length; i++) {
   quakeDepth = data.features[i].geometry.coordinates[2]
   if (quakeDepth > 160){depthColor = "#2c3031"}
   else if (quakeDepth > 70){depthColor = "#3c6a89"}
   else if (quakeDepth > 40){depthColor = "#7e510d"}
   else if (quakeDepth > 20){depthColor = "#dd821a"}
-  else {depthColor = "#48e317"}
+  else {depthColor = "#32CD32"}
   let quake = data.features[i];
   L.circle([quake.geometry.coordinates[1],quake.geometry.coordinates[0]], {
     fillOpacity: 0.5,
     color: depthColor,
     fillColor: depthColor,
     radius: (Math.pow(quake.properties.mag,2) * 10000)
-  }).bindPopup(`<h1>${quake.properties.place}</h1> <hr> <h3>Magnitude: ${quake.properties.mag.toLocaleString()}</h3></br><h3>Depth: ${quake.geometry.coordinates[2].toLocaleString()}</h3>`).addTo(myMap);
-}});
+  }).bindPopup(`<h1>${quake.properties.place} </p></h1> <hr> <h3> Date: ${Date(quake.properties.time)}</h3></p><h3>Magnitude: ${quake.properties.mag.toLocaleString()}</p>Depth: ${quake.geometry.coordinates[2].toLocaleString()}</h3>`).addTo(myMap);
+  }
+});
 
-
-  // Create the base layers.
-  let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  })
-
-  let topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-  });
-
-  // Create a baseMaps object.
-  let baseMaps = {
-    "Street Map": street,
-    "Topographic Map": topo
-  };
-
-
-  // Create our map, giving it the streetmap and earthquakes layers to display on load.
-  let myMap = L.map("map", {
-    center: [
-      22.09, -105.71
-    ],
-    zoom: 5,
-    layers: [street]
-  })
 
  
+function updateLegend(baseMaps, myMap) {
 
   // Create a layer control.
   // Pass it our baseMaps and overlayMaps.
   // Add the layer control to the map.
-  L.control.layers(baseMaps, overlayMaps, {
+  L.control.layers(null, baseMaps, {
     collapsed: false
   }).addTo(myMap);
+
+  // Create a legend to display information about our map.
+  var legend = L.control({
+    position: "bottomright"
+  });
+
+  // When the layer control is added, insert a div with the class of "legend".
+  legend.onAdd = function() {
+    let div = L.DomUtil.create("div", "legend")
+    div.innerHTML=[
+      "<h2>Earthquake Focus Depth (km)</h2>",
+      "<p class='0t20'>0 to 20</p>",
+      "<p class='20t40'>21 to 40</p>",
+      "<p class='40t70'>41 to 70</p>",
+      "<p class='71t160'>71 to 160</p>",
+      "<p class='g160'>> 160</p>"
+    ].join("");
+    return div;
+    };
+    // Add the info legend to the map.
+    legend.addTo(myMap)
+    console.log("updateLegend?")
+};
+
+updateLegend(baseMaps, myMap);
