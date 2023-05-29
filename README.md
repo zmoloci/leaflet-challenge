@@ -32,6 +32,6 @@ This map assists the user in visualizing USGS Earthquake data. Specifically, the
 - [Readme.md](https://github.com/zmoloci/leaflet-challenge/blob/main/README.md)
     - This file. 
 ## References/Resources
-[USGS Earthquake Hazard Program's GeoJSON Summary Format](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
+[USGS Earthquake Hazard Program's GeoJSON Summary Format](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)</br>
 [W3Schools CSS Tutorial](https://www.w3schools.com/css/default.asp)
 
