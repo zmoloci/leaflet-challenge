@@ -48,6 +48,8 @@ d3.json(queryUrl).then(function (data) {
   else {depthColor = "#32CD32"}
   // Declare variable for the features dictionary within the GeoJSON
   let quake = data.features[i];
+  // Declare variable for the quake date
+  const quakedate = new Date(quake.properties.time)
   // Create a circle centered on the lat/long found in the dataset
   L.circle([quake.geometry.coordinates[1],quake.geometry.coordinates[0]], {
     // a 50% fill opacity allows other circles/datapoints to show through
@@ -59,7 +61,7 @@ d3.json(queryUrl).then(function (data) {
     // this gives visual priority to more intense (higher magnitude) earthquakes
     radius: (Math.pow(quake.properties.mag,2) * 10000)
     // Popup containing its location description, date of record, magnitude and focus depth
-  }).bindPopup(`<h1>${quake.properties.place} </p></h1> <hr> <h3> Date: ${Date(quake.properties.time)}</h3></p><h3>Magnitude: ${quake.properties.mag.toLocaleString()}</p>Depth: ${quake.geometry.coordinates[2].toLocaleString()}</h3>`).addTo(myMap);
+  }).bindPopup(`<h1>${quake.properties.place} </p></h1> <hr> <h3> Date: ${quakedate}</h3></p><h3>Magnitude: ${quake.properties.mag.toLocaleString()}</p>Depth: ${quake.geometry.coordinates[2].toLocaleString()}</h3>`).addTo(myMap);
   }
 });
 
